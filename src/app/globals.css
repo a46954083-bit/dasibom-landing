@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F4EF; /* Warm Beige */
+  --foreground: #2C2623; /* Dark Charcoal (고대비) */
+  --brand-green: #2E5A44; /* Soft Forest Green */
+  --brand-green-dark: #1E352F; /* Dark Forest Green */
+  --brand-terracotta: #D27C4B; /* Warm Terracotta */
+  --brand-beige-dark: #EADFD0; /* Darker Beige */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-dark: var(--brand-green-dark);
+  --color-brand-terracotta: var(--brand-terracotta);
+  --color-brand-beige-dark: var(--brand-beige-dark);
+  --font-sans: var(--font-noto-sans-kr);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 1.125rem; /* 18px, 일반 사이트 대비 15% 가량 큰 본문 */
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* 폼 입력필드 가독성 강화 */
+input, select, textarea, button {
+  font-size: 1.125rem !important;
+}
