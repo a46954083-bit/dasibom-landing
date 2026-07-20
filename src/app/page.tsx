@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 // 자가진단 항목 타입
@@ -36,6 +36,58 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // 🍃 Hero 나뭇잎 파티클 + 숫자 카운터 애니메이션
+  useEffect(() => {
+    const container = document.getElementById("hero-leaf-container");
+    const leafEmojis = ["🍃", "🌿", "🍂"];
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    function spawnLeaf() {
+      if (!container) return;
+      const leaf = document.createElement("div");
+      leaf.className = "hero-leaf";
+      leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+      const size = 10 + Math.random() * 14;
+      const duration = 7 + Math.random() * 9;
+      const delay = Math.random() * 2;
+      leaf.style.cssText = `
+        left: ${Math.random() * 100}%;
+        top: -60px;
+        font-size: ${size}px;
+        animation-duration: ${duration}s;
+        animation-delay: ${delay}s;
+        opacity: 0;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+      `;
+      container.appendChild(leaf);
+      const t = setTimeout(() => leaf.remove(), (duration + delay + 1) * 1000);
+      timers.push(t);
+    }
+
+    // 초기 잎 8개 즉시 생성
+    for (let i = 0; i < 8; i++) spawnLeaf();
+    const interval = setInterval(spawnLeaf, 700);
+
+    // 카운터 애니메이션 (1.8초 후 시작)
+    const counterEl = document.getElementById("hero-counter");
+    const target = 12847;
+    let count = 0;
+    const counterTimer = setTimeout(() => {
+      const step = target / (2000 / 16);
+      const tick = setInterval(() => {
+        count = Math.min(count + step, target);
+        if (counterEl) counterEl.textContent = Math.floor(count).toLocaleString("ko-KR");
+        if (count >= target) clearInterval(tick);
+      }, 16);
+    }, 1800);
+    timers.push(counterTimer);
+
+    return () => {
+      clearInterval(interval);
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   const handleDiagnosisToggle = (id: number) => {
     if (selectedDiagnosis.includes(id)) {
@@ -188,51 +240,145 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 md:py-24 lg:py-32">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-7 space-y-6 md:space-y-8">
-              <span className="inline-block rounded-full bg-brand-green/10 px-4 py-1.5 text-base md:text-lg font-semibold text-brand-green">
-                50대 건강 밸런스 케어
-              </span>
-              <h1 className="text-4xl font-extrabold tracking-tight text-brand-green-dark sm:text-5xl md:text-6xl md:leading-[1.25]">
-                눈부셨던 그 시절처럼,<br />
-                <span className="text-brand-terracotta">당신의 두 번째 봄</span>을<br />
-                다시 켭니다.
-              </h1>
-              <p className="max-w-2xl text-xl leading-relaxed text-[#2C2623]/80 md:text-2xl">
-                급격히 찾아오는 신체 변화에 주저앉지 마세요. 자연에서 찾은 엄선된 원료로 50대 남녀의 깨어진 하루 밸런스를 빈틈없이 채웁니다.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <a
-                  href="#contact"
-                  className="inline-flex items-center justify-center rounded-xl bg-brand-terracotta px-8 py-4 text-xl font-bold text-white transition-all hover:bg-[#b86435] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-terracotta"
-                >
-                  첫 구매 특별 혜택 상담받기
-                </a>
-                <a
-                  href="#diagnosis"
-                  className="inline-flex items-center justify-center rounded-xl border-2 border-brand-green/30 bg-white/50 px-8 py-4 text-xl font-semibold text-brand-green transition-all hover:bg-white hover:border-brand-green"
-                >
-                  1분 자가진단 시작하기
-                </a>
-              </div>
-            </div>
-            <div className="relative lg:col-span-5 flex justify-center">
-              <div className="relative h-[350px] w-full max-w-[450px] sm:h-[450px] overflow-hidden rounded-3xl shadow-2xl ring-8 ring-white/50">
-                <Image
-                  src="/hero_couple.png"
-                  alt="두 번째 봄을 즐기는 50대 부부의 행복한 모습"
-                  fill
-                  style={{ objectFit: "cover" }}
-                  priority
-                />
-              </div>
-            </div>
+      {/* Hero Section — Cinematic Fullscreen */}
+      <section className="relative overflow-hidden" style={{ height: "100svh", minHeight: "600px" }}>
+
+        {/* Ken Burns 배경 이미지 */}
+        <div className="absolute inset-0 hero-kenburns" style={{ transform: "scale(1.18)" }}>
+          <Image
+            src="/hero_couple.png"
+            alt="두 번째 봄을 즐기는 50대 부부의 행복한 모습"
+            fill
+            style={{ objectFit: "cover", objectPosition: "center top" }}
+            priority
+          />
+        </div>
+
+        {/* 그라디언트 오버레이 */}
+        <div
+          className="absolute inset-0 hero-overlay"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(21,36,32,0.62) 0%, rgba(46,90,68,0.28) 45%, rgba(21,36,32,0.72) 100%)",
+          }}
+        />
+
+        {/* 바텀 페이드 */}
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: "220px",
+            background: "linear-gradient(to top, rgba(21,36,32,0.75) 0%, transparent 100%)",
+          }}
+        />
+
+        {/* 햇살 광선 3개 */}
+        <div className="hero-ray" style={{ left: "58%" }} />
+        <div className="hero-ray" style={{ left: "65%" }} />
+        <div className="hero-ray" style={{ left: "50%", width: "3px" }} />
+
+        {/* 나뭇잎 파티클 (JS로 동적 생성) */}
+        <div id="hero-leaf-container" className="absolute inset-0 pointer-events-none" />
+
+        {/* 브랜드 로고 */}
+        <div className="anim-brand absolute top-8 left-8 md:left-12 flex items-center gap-2.5">
+          <span
+            className="dotPing-dot"
+            style={{
+              display: "inline-block",
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: "#D27C4B",
+              animation: "dotPing 2.2s 1.5s ease-in-out infinite",
+            }}
+          />
+          <span className="text-3xl font-bold text-[#F7F4EF] tracking-wide" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
+            다시봄
+          </span>
+        </div>
+
+        {/* 메인 텍스트 블록 */}
+        <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 pb-20 md:pb-28 max-w-3xl">
+          <span className="anim-tag inline-block rounded-full px-5 py-2 text-sm md:text-base font-semibold tracking-widest text-white mb-6"
+            style={{ background: "rgba(210,124,75,0.85)", backdropFilter: "blur(8px)" }}>
+            50대 남녀 맞춤 건강기능식품
+          </span>
+
+          <h1 className="anim-h1 text-4xl md:text-6xl lg:text-7xl font-extrabold text-[#F7F4EF] leading-tight mb-6"
+            style={{ textShadow: "0 2px 28px rgba(0,0,0,0.45)" }}>
+            눈부셨던 그 시절처럼,<br />
+            <span style={{ color: "#D27C4B" }}>당신의 두 번째 봄</span>을<br />
+            다시 켭니다.
+          </h1>
+
+          <p className="anim-sub text-lg md:text-2xl font-light text-[#F7F4EF]/85 mb-10 leading-relaxed"
+            style={{ textShadow: "0 1px 12px rgba(0,0,0,0.4)" }}>
+            자연 유래 성분으로 50대 남녀의 깨어진 하루 밸런스를 빈틈없이 채웁니다.
+          </p>
+
+          <div className="anim-cta flex flex-col sm:flex-row gap-4">
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center rounded-2xl px-8 py-4 text-lg md:text-xl font-bold text-white transition-all hover:scale-105"
+              style={{
+                background: "rgba(210,124,75,0.92)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(210,124,75,0.5)",
+              }}
+            >
+              첫 구매 특별 혜택 상담받기 →
+            </a>
+            <a
+              href="#diagnosis"
+              className="inline-flex items-center justify-center rounded-2xl px-8 py-4 text-lg md:text-xl font-semibold text-[#F7F4EF] transition-all hover:scale-105"
+              style={{
+                background: "rgba(255,255,255,0.12)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,0.25)",
+              }}
+            >
+              1분 자가진단 시작하기
+            </a>
           </div>
         </div>
+
+        {/* 통계 카드 */}
+        <div
+          className="anim-card hidden md:block absolute right-10 lg:right-16"
+          style={{
+            top: "50%",
+            transform: "translateY(-50%)",
+            background: "rgba(247,244,239,0.10)",
+            backdropFilter: "blur(24px)",
+            border: "1px solid rgba(247,244,239,0.18)",
+            borderRadius: "24px",
+            padding: "36px 44px",
+            color: "#F7F4EF",
+            textAlign: "center",
+            minWidth: "210px",
+          }}
+        >
+          <div id="hero-counter" className="text-5xl font-extrabold" style={{ color: "#D27C4B" }}>0</div>
+          <div className="text-sm mt-2 tracking-wide" style={{ color: "rgba(247,244,239,0.7)" }}>만족한 고객</div>
+          <div style={{ width: "40px", height: "1px", background: "rgba(210,124,75,0.4)", margin: "20px auto" }} />
+          <div className="text-4xl font-extrabold" style={{ color: "#D27C4B" }}>98%</div>
+          <div className="text-sm mt-2 tracking-wide" style={{ color: "rgba(247,244,239,0.7)" }}>재구매율</div>
+        </div>
+
+        {/* 스크롤 힌트 */}
+        <div className="anim-scroll absolute bottom-8 right-10 hidden md:flex flex-col items-center gap-2"
+          style={{ color: "rgba(247,244,239,0.55)", fontSize: "11px", letterSpacing: "0.18em" }}>
+          <div style={{
+            width: "1px",
+            height: "44px",
+            background: "linear-gradient(to bottom, rgba(247,244,239,0.6), transparent)",
+            animation: "scrollLine 2.2s 3s ease-in-out infinite",
+          }} />
+          SCROLL
+        </div>
       </section>
+
 
       {/* PainPoints & Diagnosis Section */}
       <section id="diagnosis" className="bg-[#EADFD0]/40 py-16 md:py-24">
